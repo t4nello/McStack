@@ -1,6 +1,7 @@
 services:
   node-exporter:
     image: prom/node-exporter:latest
+    container_name: node-exporter
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -15,15 +16,16 @@ services:
       - monitoring
 
   prometheus:
-    image: wsapon/mcswarm-prometheus:latest
+    image: prom/prometheus:latest
+    container_name: prometheus
     volumes:
+      - ${DEPLOY_DIR}/monitoring/config/prometheus:/etc/prometheus/
       - prometheus_data:/prometheus
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)"
       - "traefik.http.routers.prometheus.entryPoints=web"
       - "traefik.http.routers.prometheus.tls=false"
-      - "traefik.http.routers.prometheus.priority=15"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
       - "traefik.docker.network=monitoring"
       - "traefik.http.routers.prometheus.middlewares=simpleauth"
@@ -39,28 +41,23 @@ services:
       - monitoring
 
   grafana:
-    image: wsapon/mcswarm-grafana:latest
+    image: grafana/grafana:latest
+    container_name: grafana
     environment:
-      - GF_AUTH_DISABLE_LOGIN_FORM=true  
-      - GF_SERVER_ENFORCE_DOMAIN=false
-      - GF_SERVER_HTTP_ADDR=0.0.0.0
-      - GF_SERVER_HTTP_PORT=3000
       - GF_SERVER_PROTOCOL=http
-      - GF_AUTH_ANONYMOUS_ENABLED=TRUE
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_BASIC_ENABLED=FALSE
       - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
     volumes:
+      - ${DEPLOY_DIR}/monitoring/config/grafana/dashboards:/var/lib/grafana/dashboards
+      - ${DEPLOY_DIR}/moniitoring/config/grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
       - "traefik.http.routers.grafana.entryPoints=web"
       - "traefik.http.routers.grafana.tls=false"
-      - "traefik.http.routers.grafana.priority=10"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
       - "traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana"
-      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix, simpleauth"
+      - "traefik.http.routers.grafana.middlewares=grafana-stripprefix"
       - "traefik.docker.network=monitoring"
     depends_on:
       - prometheus
