@@ -5,12 +5,6 @@ services:
     volumes:
       - ${SERVER_DIR}:/server
     command: bash -c "cd /server/ && java -Xms${XMS:-1024m} -Xmx${XMX:-4098m} -jar ${JAR_FILE_NAME:-server.jar} nogui"
-    deploy:
-      mode: global
-      resources:
-        reservations:
-          cpus: "1"
-          memory: ${XMS:-1024m}
     labels:
       - "traefik.enable=true"
       - "traefik.tcp.routers.minecraft-server.entrypoints=minecraft-server"

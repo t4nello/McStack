@@ -1,0 +1,67 @@
+services:
+  traefik:
+    image: "traefik:v3.6"
+    env_file:
+      - management-stack.env
+    command:
+      - --log.level=DEBUG
+      - --api=true
+      - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
+      - --metrics.prometheus=true
+      - --entryPoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.minecraft-server.address=:${MINECRAFT_SERVER_PORT:-25565}
+      - --api.basePath=/traefik
+    ports:
+      - "80:80"
+      - "443:443"
+      - "${MINECRAFT_SERVER_PORT:-25565}:${MINECRAFT_SERVER_PORT:-25565}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./usersfile:/usersfile"
+    labels:
+      - traefik.enable=true
+
+      # Dashboard
+      - traefik.http.routers.dashboard.entrypoints=web
+      - traefik.http.routers.dashboard.rule=PathPrefix(`/traefik`)
+      - traefik.http.routers.dashboard.service=api@internal
+      - traefik.http.routers.dashboard.middlewares=dashboard-stripprefix,simpleauth
+
+      - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/traefik
+      - traefik.http.middlewares.simpleauth.basicauth.usersfile=/usersfile
+
+      - traefik.http.services.dummy-svc.loadbalancer.server.port=9999
+    networks:
+      - management
+      - monitoring
+      - minecraft
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    command: --host=unix:///var/run/docker.sock
+    volumes:
+      - portainer_data:/data
+    networks:
+      - management
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.portainer.rule=PathPrefix(`/portainer`)
+      - traefik.http.routers.portainer.entryPoints=web
+      - traefik.http.routers.portainer.priority=41
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+      - traefik.http.middlewares.portainer-stripprefix.stripprefix.prefixes=/portainer
+      - traefik.http.routers.portainer.middlewares=portainer-stripprefix,simpleauth
+      - traefik.docker.network=management
+
+networks:
+  management:
+    external: true
+  monitoring:
+    external: true
+  minecraft:
+    external: true
+
+volumes:
+  portainer_data:

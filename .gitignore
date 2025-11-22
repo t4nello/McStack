@@ -1,4 +1,3 @@
-managament/managament-stack.env
-managament/managament-stack-processed.yml
-managament/usersfile
+management/management-stack.env
+management/usersfile
 example_env_files/
