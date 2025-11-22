@@ -1,5 +1,5 @@
 
-# MCSwarm
+# McStack
 
 A set of stacks to deploy minecraft server on linux OS with:
 - Node Exporter
