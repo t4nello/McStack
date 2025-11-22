@@ -72,14 +72,25 @@ Before deployment the Minecraft server stack it is necessary to create folder on
 
 ## Environment Variables
 
-| Variable                   | Stack      | Required? | Default value                              |
-|----------------------------|------------|-----------|--------------------------------------------|
-| MINECRAFT_SERVER_PORT      | Managament | No        | 25565                                      |
-| XMS                        | Server     | No        | 1024m                                      |
-| XMX                        | Server     | No        | 4098m                                      |
-| SERVER_DIR                 | Server     | Yes       |                                            |
-| JAR_FILE_NAME              | Server     | Yes       | server.jar                                 |
-| JDK_IMAGE_TAG              | Server     | Yes       | 19-jdk                                     |
+### Management
+| MINECRAFT_SERVER_PORT  | Management | No        | 25565         | Exposed port on which the Minecraft server will run |
+
+
+### Monitoring
+| Variable    | Stack      | Required? | Default value | Description                             |
+|------------ |------------|-----------|---------------|-----------------------------------------|
+| DEPLOY_DIR  | Monitoring | Yes       |               | Absolute path to the cloned repository  |
+
+### Server
+| Variable       | Stack  | Required? | Default value | Description                                           |
+|----------------|--------|-----------|---------------|-------------------------------------------------------|
+| XMS            | Server | No        | 1024m         | Initial heap size for the JVM                        |
+| XMX            | Server | No        | 4098m         | Maximum heap size for the JVM                        |
+| SERVER_DIR     | Server | Yes       |               | Absolute path to directory where the Minecraft server files are stored|
+| JAR_FILE_NAME  | Server | Yes       | server.jar    | Name of the Minecraft server JAR file                |
+| JDK_IMAGE_TAG  | Server | Yes       | 19-jdk        | Docker image tag of the JDK to run the server        |
+
+
 
 Example values of the Environment Variables are stored in the `example-env-values` folder
 
