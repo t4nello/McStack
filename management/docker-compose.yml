@@ -1,6 +1,7 @@
 services:
   traefik:
     image: "traefik:v3.6"
+    container_name: traefik
     env_file:
       - management-stack.env
     command:
@@ -21,18 +22,12 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./usersfile:/usersfile"
     labels:
-      - traefik.enable=true
-
-      # Dashboard
-      - traefik.http.routers.dashboard.entrypoints=web
-      - traefik.http.routers.dashboard.rule=PathPrefix(`/traefik`)
-      - traefik.http.routers.dashboard.service=api@internal
-      - traefik.http.routers.dashboard.middlewares=dashboard-stripprefix,simpleauth
-
-      - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/traefik
-      - traefik.http.middlewares.simpleauth.basicauth.usersfile=/usersfile
-
-      - traefik.http.services.dummy-svc.loadbalancer.server.port=9999
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.entrypoints=web"
+      - "traefik.http.routers.dashboard.rule=PathPrefix(`/traefik/api`) || PathPrefix(`/traefik/dashboard`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=simpleauth"
+      - "traefik.http.middlewares.simpleauth.basicauth.usersfile=./usersfile"
     networks:
       - management
       - monitoring
@@ -40,21 +35,21 @@ services:
 
   portainer:
     image: portainer/portainer-ce:latest
+    container_name: portainer
     command: --host=unix:///var/run/docker.sock
     volumes:
-      - portainer_data:/data
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "portainer_data:/data"
     networks:
       - management
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.portainer.rule=PathPrefix(`/portainer`)
-      - traefik.http.routers.portainer.entryPoints=web
-      - traefik.http.routers.portainer.priority=41
-      - traefik.http.services.portainer.loadbalancer.server.port=9000
-      - traefik.http.middlewares.portainer-stripprefix.stripprefix.prefixes=/portainer
-      - traefik.http.routers.portainer.middlewares=portainer-stripprefix,simpleauth
-      - traefik.docker.network=management
-
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=PathPrefix(`/portainer`)"
+      - "traefik.http.routers.portainer.entryPoints=web"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.middlewares.portainer-stripprefix.stripprefix.prefixes=/portainer/"
+      - "traefik.http.routers.portainer.middlewares=portainer-stripprefix"
+      - "traefik.docker.network=management"
 networks:
   management:
     external: true

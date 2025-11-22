@@ -13,6 +13,9 @@ A set of stacks to deploy minecraft server on linux OS with:
 To propelly setup the stacks you have to install docker engine accoring to the instructions on https://docs.docker.com/engine/install/, afer installation follow the steps on https://docs.docker.com/engine/install/linux-postinstall/ .
 
 Install ```apache2-utils``` package to generate password for Traefik 
+```bash
+sudo apt install apache2-utils
+```
 
 ## Installation
 1. Clone the repository
@@ -20,7 +23,7 @@ Install ```apache2-utils``` package to generate password for Traefik
 2. Go to cloned repository folder:
 
 ```bash
-cd McSwarm
+cd McStack
 ```
 4. create username and password for traefik dashboard:
 
@@ -55,12 +58,12 @@ Example values of the Environment Variables are stored in the `example-env-value
 
 ## Endpoints
 
-All endpoint begins with IP address of the server
+All endpoint begins with IP address of the server (The trailing slashes in the endpoints are mandatory!)
 
-- **`/traefik/dashboard/`** - Traefik dashboard (The trailing slash is mandatory!)
-- **`/grafana`** - Grafana dashboard
-- **`/portainer`** - Portainer administration panel
-- **`/prometheus`** - Prometheus panel
+- **`/traefik/dashboard/`** - Traefik dashboard 
+- **`/grafana/`** - Grafana dashboard
+- **`/portainer/`** - Portainer administration panel
+- **`/prometheus/`** - Prometheus panel
 ## Dashboard
 
 This project uses a dashboard based on the [Node Exporter Full](https://grafana.com/grafana/dashboards/1860-node-exporter-full/) from Grafana Labs.
