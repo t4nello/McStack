@@ -10,12 +10,39 @@ A set of stacks to deploy minecraft server on linux OS with:
 
 ## Prerequisites
 
-To propelly setup the stacks you have to install docker engine accoring to the instructions on https://docs.docker.com/engine/install/, afer installation follow the steps on https://docs.docker.com/engine/install/linux-postinstall/ .
+To properly set up the stacks, you have to install Docker Engine according to the instructions on [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/). After installation, follow the steps on [https://docs.docker.com/engine/install/linux-postinstall/](https://docs.docker.com/engine/install/linux-postinstall/).
 
-Install ```apache2-utils``` package to generate password for Traefik 
+Install the `apache2-utils` package to generate a password for Traefik:
+
 ```bash
 sudo apt install apache2-utils
 ```
+
+### Additional Docker configuration
+
+After installing Docker, you need to add an environment variable for the Docker service:
+
+1. Edit the Docker service file:
+
+```bash
+sudo nano /etc/systemd/system/multi-user.target.wants/docker.service
+```
+
+2. Add the following line under the `[Service]` section:
+
+```
+Environment=DOCKER_MIN_API_VERSION=1.24
+```
+
+3. Reload systemd and restart the Docker service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart docker.service
+```
+
+This ensures the environment variable is applied correctly and Docker uses the minimum API version.
+
 
 ## Installation
 1. Clone the repository
